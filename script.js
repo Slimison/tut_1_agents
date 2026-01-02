@@ -1,6 +1,77 @@
 const form = document.querySelector("#todo-form");
 const input = document.querySelector("#todo-input");
 const list = document.querySelector("#todo-list");
+const root = document.documentElement;
+const themeToggle = document.querySelector("#theme-toggle");
+const themeToggleText = themeToggle?.querySelector(".theme-toggle-text");
+const THEME_KEY = "todo-theme";
+const mediaQuery = window.matchMedia
+  ? window.matchMedia("(prefers-color-scheme: dark)")
+  : null;
+let userThemeLocked = false;
+
+const readStoredTheme = () => {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const applyTheme = (theme, { persist = false } = {}) => {
+  const next = theme === "dark" ? "dark" : "light";
+  root.dataset.theme = next;
+  if (themeToggle) {
+    themeToggle.setAttribute("aria-pressed", String(next === "dark"));
+  }
+  if (themeToggleText) {
+    themeToggleText.textContent = next === "dark" ? "Dark" : "Light";
+  }
+  if (persist) {
+    userThemeLocked = true;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // no-op
+    }
+  }
+};
+
+const initTheme = () => {
+  const stored = readStoredTheme();
+  userThemeLocked = stored !== null;
+  if (stored) {
+    applyTheme(stored);
+    return;
+  }
+  const fallback = mediaQuery?.matches ? "dark" : "light";
+  applyTheme(fallback);
+};
+
+initTheme();
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const current = root.dataset.theme === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next, { persist: true });
+  });
+}
+
+const handleSystemThemeChange = (event) => {
+  if (userThemeLocked) {
+    return;
+  }
+  applyTheme(event.matches ? "dark" : "light");
+};
+
+// Listen for system theme changes (supports older browsers with fallback)
+if (mediaQuery?.addEventListener) {
+  mediaQuery.addEventListener("change", handleSystemThemeChange);
+} else if (mediaQuery?.addListener) {
+  // Fallback for legacy browsers (pre-2020)
+  mediaQuery.addListener(handleSystemThemeChange);
+}
 
 const ensureEmptyState = () => {
   if (!list.children.length) {
@@ -78,8 +149,13 @@ list.addEventListener("click", (event) => {
 
   if (target.dataset.delete) {
     const item = target.closest("li");
-    item?.remove();
-    ensureEmptyState();
+    if (item) {
+      item.style.animation = "slide-out 250ms ease forwards";
+      item.addEventListener("animationend", () => {
+        item.remove();
+        ensureEmptyState();
+      }, { once: true });
+    }
   }
 });
 
