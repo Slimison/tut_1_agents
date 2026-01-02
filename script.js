@@ -147,8 +147,13 @@ list.addEventListener("click", (event) => {
 
   if (target.dataset.delete) {
     const item = target.closest("li");
-    item?.remove();
-    ensureEmptyState();
+    if (item) {
+      item.style.animation = "slide-out 250ms ease forwards";
+      item.addEventListener("animationend", () => {
+        item.remove();
+        ensureEmptyState();
+      }, { once: true });
+    }
   }
 });
 
