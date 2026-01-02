@@ -65,9 +65,11 @@ const handleSystemThemeChange = (event) => {
   applyTheme(event.matches ? "dark" : "light");
 };
 
+// Listen for system theme changes (supports older browsers with fallback)
 if (mediaQuery?.addEventListener) {
   mediaQuery.addEventListener("change", handleSystemThemeChange);
 } else if (mediaQuery?.addListener) {
+  // Fallback for legacy browsers (pre-2020)
   mediaQuery.addListener(handleSystemThemeChange);
 }
 
