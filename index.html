@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +10,19 @@
     <main class="app-shell">
       <section class="todo-card" aria-live="polite">
         <header class="card-header">
-          <p class="tag">today</p>
+          <div class="header-top">
+            <p class="tag">today</p>
+            <button
+              id="theme-toggle"
+              class="theme-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-label="Toggle color theme"
+            >
+              <span class="theme-toggle-thumb" aria-hidden="true"></span>
+              <span class="theme-toggle-text">Light</span>
+            </button>
+          </div>
           <h1>Todo Breeze</h1>
           <p class="subtitle">Drop a task, clear your day.</p>
         </header>
